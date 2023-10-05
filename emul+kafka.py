@@ -1,8 +1,9 @@
-from kafka import KafkaProducer
+from confluent_kafka import Producer
 from flask import Flask, request
 import time
+
 app = Flask(__name__)
-producer = KafkaProducer(bootstrap_servers='localhost:9092')
+producer = Producer({'bootstrap.servers': 'localhost:9092'})
 
 @app.route('/post-message', methods=['POST'])
 def post_message():
@@ -19,9 +20,11 @@ def post_message():
         "uri": uri
     }
 
-    producer.send('postedmessages', value=message)
+    producer.produce('postedmessages', value=message)
+    producer.flush()  # Для уверенности, что все сообщения были отправлены
     return '200 ОК'
 
 if __name__ == '__main__':
     app.run()
+
 
